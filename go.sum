@@ -42,6 +42,8 @@ github.com/google/go-cmp v0.5.5/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/
 github.com/google/uuid v1.1.2 h1:EVhdT+1Kseyi1/pUmXKaFxYsDNy9RQYkMWRH68J/W7Y=
 github.com/google/uuid v1.1.2/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/grpc-ecosystem/grpc-gateway v1.16.0/go.mod h1:BDjrQk3hbvj6Nolgz8mAMFbcEtjT1g+wF4CSlocrBnw=
+github.com/junglemc/Service-PlayerProvider v0.0.0-20210710163249-5059e486f2d7 h1:uLwniq4S7j6kshRO05j/a5dmXdhZnq2mRCTeZbyuEPU=
+github.com/junglemc/Service-PlayerProvider v0.0.0-20210710163249-5059e486f2d7/go.mod h1:jFecvhMje6O83v1FmWMfkW4ra8xN4JRryM4vhvqFpQ0=
 github.com/junglemc/Service-StatusProvider v0.0.0-20210710134346-2f444d18fe62 h1:/Uu+41wnnoHNb/0p1utg2C0ZT4yOxLq1VjTmk3biwgw=
 github.com/junglemc/Service-StatusProvider v0.0.0-20210710134346-2f444d18fe62/go.mod h1:Xi/xAU9uB3Ejv7a8loC/Q9j34olv+AMJE+mqDjlR2VA=
 github.com/junglemc/nbt v1.2.0 h1:XtkbztP6jgkHkWkDGflDheOnr2Ug7EZ7n8S6yTs1XPg=

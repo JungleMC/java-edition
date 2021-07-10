@@ -4,10 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/google/uuid"
 	"github.com/junglemc/Service-JavaEditionHost/internal/net/packets"
-	"github.com/junglemc/Service-StatusProvider/pkg/msg"
-	"github.com/junglemc/Service-StatusProvider/pkg/rpc"
+	player_msg "github.com/junglemc/Service-PlayerProvider/pkg/msg"
+	player_rpc "github.com/junglemc/Service-PlayerProvider/pkg/rpc"
+	status_msg "github.com/junglemc/Service-StatusProvider/pkg/msg"
+	status_rpc "github.com/junglemc/Service-StatusProvider/pkg/rpc"
 	. "reflect"
+	"sync"
 	"time"
 )
 
@@ -23,24 +27,32 @@ func (c *JavaClient) statusHandlers(pkt Packet) error {
 }
 
 func (c *JavaClient) handleStatusRequest() error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
+	statusResponse, statusResponseErr, playerListResponse, playerListResponseErr := getStatusInfo()
+	if statusResponseErr != nil {
+		return statusResponseErr
+	}
 
-	// TODO: Query player tracking service in parallel with the status service
-	statusResponse, err := rpc.Status.StatusRequest(ctx, &msg.StatusRequest{})
-	if err != nil {
-		rpc.StatusConnection.ResetConnectBackoff()
-		return err
+	if playerListResponseErr != nil {
+		return playerListResponseErr
+	}
+
+	players := make([]packets.ServerListPlayer, len(playerListResponse.Sample))
+	for i := 0; i < len(players); i++ {
+		id, _ := uuid.FromBytes(playerListResponse.Sample[i].Id)
+		players[i] = packets.ServerListPlayer{
+			Name: playerListResponse.Sample[i].Name,
+			Id:   id,
+		}
 	}
 
 	status := packets.ServerListResponse{
 		Description: statusResponse.ServerDescription,
-		Players:     packets.ServerListPlayers{
-			Max:    20, // TODO: Query player tracking service
-			Online: 0, // TODO: Query player tracking service
-			Sample: []packets.ServerListPlayer{}, // TODO: Populate online player list sample from player tracking service
+		Players: packets.ServerListPlayers{
+			Max:    playerListResponse.Max,
+			Online: playerListResponse.Online,
+			Sample: []packets.ServerListPlayer{},
 		},
-		Version:     packets.GameVersion{
+		Version: packets.GameVersion{
 			Name:     ProtocolVersionName,
 			Protocol: ProtocolVersionCode,
 		},
@@ -57,4 +69,37 @@ func (c *JavaClient) handleStatusRequest() error {
 
 func (c *JavaClient) handleStatusPing() error {
 	return c.send(&packets.ClientboundStatusPongPacket{Time: time.Now().Unix()})
+}
+
+// TODO: Better handling of this data, it's a mess, but it's parallel
+func getStatusInfo() (statusResponse *status_msg.StatusResponse, statusResponseErr error, playerListResponse *player_msg.JavaEdition_PlayerListResponse, playerListResponseErr error) {
+	wg := &sync.WaitGroup{}
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+
+		statusResponse, statusResponseErr = status_rpc.StatusService.StatusRequest(ctx, &status_msg.StatusRequest{})
+		if statusResponseErr != nil {
+			status_rpc.StatusServiceConnection.ResetConnectBackoff()
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+
+		playerListResponse, playerListResponseErr = player_rpc.PlayerService.JavaEdition_PlayerListRequest(ctx, &player_msg.JavaEdition_PlayerListRequest{})
+		if playerListResponseErr != nil {
+			player_rpc.PlayerServiceConnection.ResetConnectBackoff()
+		}
+	}()
+
+	wg.Wait()
+	return
 }

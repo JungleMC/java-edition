@@ -4,7 +4,8 @@ import (
 	"github.com/caarlos0/env"
 	"github.com/junglemc/Service-JavaEditionHost/internal/config"
 	"github.com/junglemc/Service-JavaEditionHost/internal/net"
-	"github.com/junglemc/Service-StatusProvider/pkg/rpc"
+	player_rpc "github.com/junglemc/Service-PlayerProvider/pkg/rpc"
+	status_rpc "github.com/junglemc/Service-StatusProvider/pkg/rpc"
 )
 
 func main() {
@@ -13,8 +14,11 @@ func main() {
 		panic(err)
 	}
 
-	rpc.StatusInit(config.Get.StatusHost, config.Get.StatusPort)
-	defer rpc.StatusClose()
+	status_rpc.StatusInit(config.Get.StatusHost, config.Get.StatusPort)
+	defer status_rpc.StatusClose()
+
+	player_rpc.PlayerInit(config.Get.PlayerHost, config.Get.PlayerPort)
+	defer player_rpc.PlayerClose()
 
 	_, err := net.Bootstrap(config.Get.ListenAddress, config.Get.ListenPort, config.Get.OnlineMode)
 	if err != nil {
