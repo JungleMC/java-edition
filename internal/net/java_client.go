@@ -4,21 +4,25 @@ import (
 	"bytes"
 	"crypto/cipher"
 	"crypto/rand"
+	"github.com/junglemc/Service-JavaEditionHost/internal/config"
 	"io"
+	"log"
 	"net"
+	"reflect"
 )
 
 const MTU = 1500
 
 type JavaClient struct {
-	connection         net.Conn
-	protocol           Protocol
-	compressionEnabled bool
-	encryptionEnabled  bool
-	verifyToken        []byte
-	sharedSecret       []byte
-	encryptStream      cipher.Stream
-	decryptStream      cipher.Stream
+	connection          net.Conn
+	protocol            Protocol
+	gameProtocolVersion int32
+	compressionEnabled  bool
+	encryptionEnabled   bool
+	verifyToken         []byte
+	sharedSecret        []byte
+	encryptStream       cipher.Stream
+	decryptStream       cipher.Stream
 }
 
 func clientConnect(connection net.Conn) {
@@ -36,7 +40,7 @@ func (c *JavaClient) listen() {
 		buf := make([]byte, MTU)
 		bytesRead, err := c.connection.Read(buf)
 		if err != nil && err != io.EOF {
-			c.disconnect()
+			c.disconnectError(err)
 			return
 		}
 
@@ -48,23 +52,62 @@ func (c *JavaClient) listen() {
 		reader := bytes.NewBuffer(buf)
 		pkt, err := readPacket(reader, c.protocol, c.compressionEnabled)
 		if err != nil && err != io.EOF {
-			c.disconnect()
+			c.disconnectError(err)
 			return
 		}
 
-		if pkt == nil {
-			continue
+		if err == io.EOF {
+			c.disconnect("")
+			return
 		}
 
-		c.receivePacket(pkt)
+		err = c.handle(pkt)
+		if err != nil {
+			c.disconnectError(err)
+		}
 	}
 }
 
-func (c *JavaClient) receivePacket(pkt Packet) {
+func (c *JavaClient) send(pkt Packet) error {
+	// TODO: Submit packets to a FIFO queue before sending directly, maintaining packet order
+	buf := &bytes.Buffer{}
+	writePacket(buf, reflect.ValueOf(pkt).Elem(), c.protocol, c.compressionEnabled, config.Get.CompressionThreshold)
+
+	data := buf.Bytes()
+	if config.Get.OnlineMode && c.encryptionEnabled {
+		c.encryptStream.XORKeyStream(data, data)
+	}
+
+	_, err := c.connection.Write(data)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func (c *JavaClient) disconnect() {
-	if c.protocol == Play {
+func (c *JavaClient) handle(pkt Packet) error {
+	switch c.protocol {
+	case Handshake:
+		return c.handshakeHandlers(pkt)
+	case Status:
+		return c.statusHandlers(pkt)
+	}
+	return func(pkt Packet) error {
+		panic("not implemented")
+	}(nil)
+}
+
+func (c *JavaClient) disconnect(reason string) {
+	if c.protocol == Login {
+		// TODO: Send login kick player
+	} else if c.protocol == Play {
+		// TODO: Send play disconnect
 	}
 	_ = c.connection.Close()
+}
+
+func (c *JavaClient) disconnectError(err error) {
+	// TODO: Better error kick handling
+	log.Println(err)
+	c.disconnect(err.Error())
 }

@@ -11,5 +11,5 @@ type ServerboundHandshakeLegacyPingPacket struct {
 	Payload         byte
 	ProtocolVersion byte
 	Hostname        string
-	Port            int16
+	Port            int32
 }

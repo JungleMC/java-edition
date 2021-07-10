@@ -3,7 +3,13 @@ module github.com/junglemc/Service-JavaEditionHost
 go 1.16
 
 require (
-	github.com/junglemc/nbt v0.0.0-20210708191404-702d6199de92
+	github.com/caarlos0/env v3.5.0+incompatible
+	github.com/google/uuid v1.1.2
+	github.com/junglemc/Service-StatusProvider v0.0.0-20210710134346-2f444d18fe62
+	github.com/junglemc/nbt v1.2.0
 	google.golang.org/grpc v1.39.0
-	google.golang.org/protobuf v1.27.1
+)
+
+replace (
+	github.com/junglemc/Service-StatusProvider => ../Service-StatusProvider
 )

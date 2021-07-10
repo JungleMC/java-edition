@@ -5,7 +5,7 @@ import (
 )
 
 type ServerListResponse struct {
-	Description string    `json:"description,omitempty"` // chat message ptr
+	Description string            `json:"description,omitempty"` // chat message ptr
 	Players     ServerListPlayers `json:"players"`
 	Version     GameVersion       `json:"version"`
 	Favicon     string            `json:"favicon,omitempty"`
@@ -13,12 +13,12 @@ type ServerListResponse struct {
 
 type GameVersion struct {
 	Name     string `json:"name"`
-	Protocol int    `json:"protocol"`
+	Protocol uint32 `json:"protocol"`
 }
 
 type ServerListPlayers struct {
-	Max    int                `json:"max"`
-	Online int                `json:"online"`
+	Max    uint32             `json:"max"`
+	Online uint32             `json:"online"`
 	Sample []ServerListPlayer `json:"sample,omitempty"`
 }
 

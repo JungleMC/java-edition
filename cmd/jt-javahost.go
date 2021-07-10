@@ -1,37 +1,23 @@
 package main
 
 import (
+	"github.com/caarlos0/env"
+	"github.com/junglemc/Service-JavaEditionHost/internal/config"
 	"github.com/junglemc/Service-JavaEditionHost/internal/net"
-	"os"
-	"strconv"
+	"github.com/junglemc/Service-JavaEditionHost/internal/rpc"
 )
 
 func main() {
-	javaAddr, javaPort := javaListenAddress()
+	config.Get = &config.Config{}
+	if err := env.Parse(config.Get); err != nil {
+		panic(err)
+	}
 
-	onlineModeEnv := os.Getenv("JAVA_ONLINE_MODE")
-	onlineMode, err := strconv.ParseBool(onlineModeEnv)
+	rpc.StatusInit(config.Get.StatusHost, config.Get.StatusPort)
+	defer rpc.StatusClose()
+
+	_, err := net.Bootstrap(config.Get.ListenAddress, config.Get.ListenPort, config.Get.OnlineMode)
 	if err != nil {
-		panic("JAVA_ONLINE_MODE not bool: " + onlineModeEnv)
+		panic(err) // TODO: tidy error reporting?
 	}
-
-	_, err = net.Bootstrap(javaAddr, javaPort, onlineMode)
-}
-
-func javaListenAddress() (string, int) {
-	javaAddrEnv := os.Getenv("JAVA_LISTEN_ADDRESS")
-	javaPortEnv := os.Getenv("JAVA_LISTEN_PORT")
-
-	if javaAddrEnv == "" {
-		javaAddrEnv = "0.0.0.0"
-	}
-
-	if javaPortEnv == "" {
-		javaPortEnv = "25565"
-	}
-	javaPort, err := strconv.Atoi(javaPortEnv)
-	if err != nil {
-		panic("JAVA_LISTEN_PORT invalid: " + javaPortEnv)
-	}
-	return javaAddrEnv, javaPort
 }

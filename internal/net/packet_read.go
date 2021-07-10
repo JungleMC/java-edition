@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"compress/zlib"
 	"github.com/junglemc/Service-JavaEditionHost/internal/net/codec"
+	"github.com/junglemc/Service-JavaEditionHost/internal/net/packets"
 	"reflect"
 )
 
@@ -13,8 +14,7 @@ type Packet interface{}
 func readPacket(buf *bytes.Buffer, proto Protocol, compressed bool) (Packet, error) {
 	payloadCheck, err := buf.ReadByte()
 	if payloadCheck == 0xFE {
-		readLegacyPing(buf)
-		return nil, nil
+		return readLegacyPing(buf), nil
 	} else {
 		_ = buf.UnreadByte()
 	}
@@ -67,9 +67,9 @@ func readPacket(buf *bytes.Buffer, proto Protocol, compressed bool) (Packet, err
 	return pkt.Interface().(Packet), err
 }
 
-func readLegacyPing(buf *bytes.Buffer) {
-	_, _ = buf.ReadByte()
-	_, _ = buf.ReadByte()
+func readLegacyPing(buf *bytes.Buffer) *packets.ServerboundHandshakeLegacyPingPacket {
+	payload, _ := buf.ReadByte()
+	protocolVersion, _ := buf.ReadByte()
 	_, _ = buf.ReadByte() // packet identifier for a plugin message
 
 	mcPingHostLength := codec.ReadUint16(buf)
@@ -82,5 +82,12 @@ func readLegacyPing(buf *bytes.Buffer) {
 	hostnameLength := codec.ReadInt16(buf)
 	hostname := make([]byte, hostnameLength)
 	_, _ = buf.Read(hostname)
-	codec.ReadInt16(buf)
+	port := codec.ReadInt32(buf)
+
+	return &packets.ServerboundHandshakeLegacyPingPacket{
+		Payload:         payload,
+		ProtocolVersion: protocolVersion,
+		Hostname:        string(hostname),
+		Port:            port,
+	}
 }
