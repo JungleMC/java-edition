@@ -17,7 +17,7 @@ func (c *JavaClient) statusHandlers(pkt Packet) error {
 	case TypeOf(packets.ServerboundStatusRequestPacket{}):
 		return c.handleStatusRequest()
 	case TypeOf(packets.ServerboundStatusPingPacket{}):
-		return c.handleStatusPing(pkt.(packets.ServerboundStatusPingPacket))
+		return c.handleStatusPing()
 	}
 	return errors.New("not implemented: " + t.Name())
 }
@@ -55,6 +55,6 @@ func (c *JavaClient) handleStatusRequest() error {
 	return c.send(&packets.ClientboundStatusResponsePacket{Response: string(data)})
 }
 
-func (c *JavaClient) handleStatusPing(pkt packets.ServerboundStatusPingPacket) error {
-	return nil
+func (c *JavaClient) handleStatusPing() error {
+	return c.send(&packets.ClientboundStatusPongPacket{Time: time.Now().Unix()})
 }
