@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/junglemc/Service-JavaEditionHost/internal/net/packets"
-	"github.com/junglemc/Service-JavaEditionHost/internal/rpc"
 	"github.com/junglemc/Service-StatusProvider/pkg/msg"
+	"github.com/junglemc/Service-StatusProvider/pkg/rpc"
 	. "reflect"
 	"time"
 )

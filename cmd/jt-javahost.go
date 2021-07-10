@@ -4,7 +4,7 @@ import (
 	"github.com/caarlos0/env"
 	"github.com/junglemc/Service-JavaEditionHost/internal/config"
 	"github.com/junglemc/Service-JavaEditionHost/internal/net"
-	"github.com/junglemc/Service-JavaEditionHost/internal/rpc"
+	"github.com/junglemc/Service-StatusProvider/pkg/rpc"
 )
 
 func main() {
