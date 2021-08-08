@@ -1,6 +1,8 @@
 package net
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
 	"github.com/JungleMC/java-edition/internal/net/packets"
 	. "reflect"
@@ -19,37 +21,22 @@ func (c *JavaClient) statusHandlers(pkt Packet) error {
 }
 
 func (c *JavaClient) handleStatusRequest() error {
-	/*
-	statusResponse, statusResponseErr, playerListResponse, playerListResponseErr := getStatusInfo()
-	if statusResponseErr != nil {
-		return statusResponseErr
-	}
-
-	if playerListResponseErr != nil {
-		return playerListResponseErr
-	}
-
-	players := make([]packets.ServerListPlayer, len(playerListResponse.Sample))
-	for i := 0; i < len(players); i++ {
-		id, _ := uuid.FromBytes(playerListResponse.Sample[i].Id)
-		players[i] = packets.ServerListPlayer{
-			Name: playerListResponse.Sample[i].Name,
-			Id:   id,
-		}
-	}
+	description := c.server.RDB.Get(context.Background(), "config:description").Val()
+	favicon := c.server.RDB.Get(context.Background(), "config:favicon").Val()
+	maxPlayers, _ := c.server.RDB.Get(context.Background(), "config:max_players").Int()
 
 	status := packets.ServerListResponse{
-		Description: statusResponse.ServerDescription,
-		Players: packets.ServerListPlayers{
-			Max:    playerListResponse.Max,
-			Online: playerListResponse.Online,
-			Sample: []packets.ServerListPlayer{},
+		Description: description,
+		Players:     packets.ServerListPlayers{
+			Max:    maxPlayers,
+			Online: 0,
+			Sample: make([]packets.ServerListPlayer, 0),
 		},
 		Version: packets.GameVersion{
 			Name:     ProtocolVersionName,
 			Protocol: ProtocolVersionCode,
 		},
-		Favicon: statusResponse.GetFavicon(),
+		Favicon: favicon,
 	}
 
 	data, err := json.Marshal(status)
@@ -58,7 +45,46 @@ func (c *JavaClient) handleStatusRequest() error {
 	}
 
 	return c.send(&packets.ClientboundStatusResponsePacket{Response: string(data)})
-	 */
+	/*
+		statusResponse, statusResponseErr, playerListResponse, playerListResponseErr := getStatusInfo()
+		if statusResponseErr != nil {
+			return statusResponseErr
+		}
+
+		if playerListResponseErr != nil {
+			return playerListResponseErr
+		}
+
+		players := make([]packets.ServerListPlayer, len(playerListResponse.Sample))
+		for i := 0; i < len(players); i++ {
+			id, _ := uuid.FromBytes(playerListResponse.Sample[i].Id)
+			players[i] = packets.ServerListPlayer{
+				Name: playerListResponse.Sample[i].Name,
+				Id:   id,
+			}
+		}
+
+		status := packets.ServerListResponse{
+			Description: statusResponse.ServerDescription,
+			Players: packets.ServerListPlayers{
+				Max:    playerListResponse.Max,
+				Online: playerListResponse.Online,
+				Sample: []packets.ServerListPlayer{},
+			},
+			Version: packets.GameVersion{
+				Name:     ProtocolVersionName,
+				Protocol: ProtocolVersionCode,
+			},
+			Favicon: statusResponse.GetFavicon(),
+		}
+
+		data, err := json.Marshal(status)
+		if err != nil {
+			return err
+		}
+
+		return c.send(&packets.ClientboundStatusResponsePacket{Response: string(data)})
+	*/
 	return nil
 }
 

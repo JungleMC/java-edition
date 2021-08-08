@@ -13,12 +13,12 @@ type ServerListResponse struct {
 
 type GameVersion struct {
 	Name     string `json:"name"`
-	Protocol uint32 `json:"protocol"`
+	Protocol int `json:"protocol"`
 }
 
 type ServerListPlayers struct {
-	Max    uint32             `json:"max"`
-	Online uint32             `json:"online"`
+	Max    int             `json:"max"`
+	Online int             `json:"online"`
 	Sample []ServerListPlayer `json:"sample,omitempty"`
 }
 

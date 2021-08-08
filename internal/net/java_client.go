@@ -3,7 +3,6 @@ package net
 import (
 	"bytes"
 	"crypto/cipher"
-	"crypto/rand"
 	"github.com/JungleMC/java-edition/internal/config"
 	"io"
 	"log"
@@ -14,6 +13,7 @@ import (
 const MTU = 1500
 
 type JavaClient struct {
+	server              *JavaServer
 	connection          net.Conn
 	protocol            Protocol
 	gameProtocolVersion int32
@@ -23,16 +23,6 @@ type JavaClient struct {
 	sharedSecret        []byte
 	encryptStream       cipher.Stream
 	decryptStream       cipher.Stream
-}
-
-func clientConnect(connection net.Conn) {
-	client := &JavaClient{
-		connection: connection,
-		protocol:   Handshake,
-	}
-	_, _ = rand.Read(client.verifyToken)
-
-	client.listen()
 }
 
 func (c *JavaClient) listen() {

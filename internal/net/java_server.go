@@ -1,20 +1,36 @@
 package net
 
 import (
+	"crypto/rand"
 	"crypto/rsa"
 	"fmt"
+	"github.com/go-redis/redis/v8"
 	"log"
 	"net"
 )
 
 type JavaServer struct {
+	RDB             *redis.Client
 	privateKey      *rsa.PrivateKey
 	privateKeyBytes []byte
 	publicKeyBytes  []byte
 }
 
-func Bootstrap(address string, port int, onlineMode bool) (*JavaServer, error) {
-	s := &JavaServer{}
+func (s *JavaServer) clientConnect(connection net.Conn) {
+	client := &JavaClient{
+		server: s,
+		connection: connection,
+		protocol:   Handshake,
+	}
+	_, _ = rand.Read(client.verifyToken)
+
+	client.listen()
+}
+
+func Bootstrap(rdb *redis.Client, address string, port int, onlineMode bool) (*JavaServer, error) {
+	s := &JavaServer{
+		RDB: rdb,
+	}
 
 	if onlineMode {
 		s.generateKeyPair()
@@ -34,6 +50,7 @@ func Bootstrap(address string, port int, onlineMode bool) (*JavaServer, error) {
 			connection.Close()
 			continue
 		}
-		go clientConnect(connection)
+
+		go s.clientConnect(connection)
 	}
 }
