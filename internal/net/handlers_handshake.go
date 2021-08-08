@@ -2,7 +2,7 @@ package net
 
 import (
 	"errors"
-	"github.com/junglemc/Service-JavaEditionHost/internal/net/packets"
+	"github.com/JungleMC/java-edition/internal/net/packets"
 	. "reflect"
 )
 

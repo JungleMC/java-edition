@@ -13,11 +13,4 @@ type Config struct {
 	ListenPort           int    `env:"LISTEN_PORT" envDefault:"25565"`
 	OnlineMode           bool   `env:"ONLINE_MODE" envDefault:"true"`
 	CompressionThreshold int    `env:"COMPRESSION_THRESHOLD" envDefault:"256"`
-
-	// RPC services
-	StatusHost string `env:"STATUS_HOST" envDefault:"127.0.0.1"`
-	StatusPort int    `env:"STATUS_PORT" envDefault:"50050"`
-
-	PlayerHost string `env:"PLAYER_HOST" envDefault:"127.0.0.1"`
-	PlayerPort int    `env:"PLAYER_PORT" envDefault:"50051"`
 }

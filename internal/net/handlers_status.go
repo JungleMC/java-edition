@@ -1,13 +1,9 @@
 package net
 
 import (
-	"context"
-	"encoding/json"
 	"errors"
 	"github.com/JungleMC/java-edition/internal/net/packets"
-	"github.com/google/uuid"
 	. "reflect"
-	"sync"
 	"time"
 )
 
@@ -23,6 +19,7 @@ func (c *JavaClient) statusHandlers(pkt Packet) error {
 }
 
 func (c *JavaClient) handleStatusRequest() error {
+	/*
 	statusResponse, statusResponseErr, playerListResponse, playerListResponseErr := getStatusInfo()
 	if statusResponseErr != nil {
 		return statusResponseErr
@@ -61,12 +58,15 @@ func (c *JavaClient) handleStatusRequest() error {
 	}
 
 	return c.send(&packets.ClientboundStatusResponsePacket{Response: string(data)})
+	 */
+	return nil
 }
 
 func (c *JavaClient) handleStatusPing() error {
 	return c.send(&packets.ClientboundStatusPongPacket{Time: time.Now().Unix()})
 }
 
+/*
 // TODO: Better handling of this data, it's a mess, but it's parallel
 func getStatusInfo() (statusResponse *status_msg.StatusResponse, statusResponseErr error, playerListResponse *player_msg.JavaEdition_PlayerListResponse, playerListResponseErr error) {
 	wg := &sync.WaitGroup{}
@@ -99,3 +99,4 @@ func getStatusInfo() (statusResponse *status_msg.StatusResponse, statusResponseE
 	wg.Wait()
 	return
 }
+*/
