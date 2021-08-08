@@ -14,6 +14,6 @@ func main() {
 
 	_, err := net.Bootstrap(config.Get.ListenAddress, config.Get.ListenPort, config.Get.OnlineMode)
 	if err != nil {
-		panic(err) // TODO: tidy error reporting?
+		panic(err)
 	}
 }
