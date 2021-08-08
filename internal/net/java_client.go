@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"crypto/cipher"
 	"crypto/rand"
-	"github.com/junglemc/Service-JavaEditionHost/internal/config"
+	"github.com/JungleMC/java-edition/internal/config"
 	"io"
 	"log"
 	"net"

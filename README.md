@@ -1,3 +1,3 @@
-# Service-JavaEditionHost
+# JungleMC/java-edition
 
-Java Edition host provider for JungleTree
+JungleTree connection provider for Minecraft: Java Edition.

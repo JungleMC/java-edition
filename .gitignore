@@ -16,3 +16,4 @@
 /dist
 config.toml
 *.pb.go
+jungetree-java

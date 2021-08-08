@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"bytes"
 	"compress/zlib"
-	"github.com/junglemc/Service-JavaEditionHost/internal/net/codec"
-	"github.com/junglemc/Service-JavaEditionHost/internal/net/packets"
+	"github.com/JungleMC/java-edition/internal/net/codec"
+	"github.com/JungleMC/java-edition/internal/net/packets"
 	"reflect"
 )
 

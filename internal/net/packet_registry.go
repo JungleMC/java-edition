@@ -4,7 +4,7 @@ import (
 	"fmt"
 	. "reflect"
 
-	. "github.com/junglemc/Service-JavaEditionHost/internal/net/packets"
+	. "github.com/JungleMC/java-edition/internal/net/packets"
 )
 
 func packetIDFromTypeClientbound(t Type, p Protocol) int32 {

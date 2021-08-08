@@ -3,7 +3,7 @@ package net
 import (
 	"bytes"
 	"compress/zlib"
-	"github.com/junglemc/Service-JavaEditionHost/internal/net/codec"
+	"github.com/JungleMC/java-edition/internal/net/codec"
 	"reflect"
 )
 

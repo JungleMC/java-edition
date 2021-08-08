@@ -1,11 +1,9 @@
 package main
 
 import (
+	"github.com/JungleMC/java-edition/internal/config"
+	"github.com/JungleMC/java-edition/internal/net"
 	"github.com/caarlos0/env"
-	"github.com/junglemc/Service-JavaEditionHost/internal/config"
-	"github.com/junglemc/Service-JavaEditionHost/internal/net"
-	player_rpc "github.com/junglemc/Service-PlayerProvider/pkg/rpc"
-	status_rpc "github.com/junglemc/Service-StatusProvider/pkg/rpc"
 )
 
 func main() {
