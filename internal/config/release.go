@@ -2,8 +2,6 @@
 
 package config
 
-var Get *Config
-
 type Config struct {
 	DebugMode bool `env:"DEBUG" envDefault:"false"`
 	Verbose   bool `env:"VERBOSE" envDefault:"false"`

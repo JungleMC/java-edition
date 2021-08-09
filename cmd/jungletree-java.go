@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/JungleMC/java-edition/pkg/startup"
+	"github.com/JungleMC/java-edition/pkg/service"
 	"github.com/JungleMC/sdk/pkg/redis"
 )
 
 func main() {
-	startup.Start(redis.NewClient())
+	_ = service.Start(redis.NewClient())
 }
