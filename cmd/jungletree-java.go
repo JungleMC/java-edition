@@ -6,5 +6,5 @@ import (
 )
 
 func main() {
-	_ = service.Start(redis.NewClient())
+	service.Start(redis.NewClient())
 }

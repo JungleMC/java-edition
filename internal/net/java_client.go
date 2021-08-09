@@ -81,6 +81,8 @@ func (c *JavaClient) handle(pkt Packet) error {
 		return c.handshakeHandlers(pkt)
 	case Status:
 		return c.statusHandlers(pkt)
+	case Login:
+		return c.loginHandlers(pkt)
 	}
 	return func(pkt Packet) error {
 		panic("not implemented")

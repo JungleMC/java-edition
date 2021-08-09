@@ -1,8 +1,10 @@
 package net
 
 import (
+	"context"
 	"errors"
 	"github.com/JungleMC/java-edition/internal/net/packets"
+	"github.com/JungleMC/sdk/pkg/redis/messages"
 	. "reflect"
 )
 
@@ -17,5 +19,9 @@ func (c *JavaClient) loginHandlers(pkt Packet) error {
 }
 
 func (c *JavaClient) handleLoginStartPacket(pkt packets.ServerboundLoginStartPacket) error {
+	cmd := c.server.RDB.Publish(context.Background(), "login.begin", &messages.LoginBegin{Username: pkt.Username})
+	if cmd.Err() != nil {
+		return cmd.Err()
+	}
 	return nil
 }
