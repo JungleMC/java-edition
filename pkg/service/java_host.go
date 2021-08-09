@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"github.com/JungleMC/java-edition/internal/config"
 	"github.com/JungleMC/java-edition/internal/net"
 	"github.com/caarlos0/env"
@@ -15,15 +16,22 @@ type JavaService struct {
 	NetworkServer *net.JavaServer
 }
 
-func Start(rdb *redis.Client) {
-	Instance = &JavaService{
-		RDB:    rdb,
-	}
-
+func Start() {
 	config.Get = &config.Config{}
 	err := env.Parse(config.Get)
 	if err != nil {
 		panic(err)
+	}
+
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     fmt.Sprintf("%v:%v", config.Get.RedisHost, config.Get.RedisPort),
+		Password: config.Get.RedisPassword,
+		DB:       config.Get.RedisDatabase,
+	})
+	defer rdb.Close()
+
+	Instance = &JavaService{
+		RDB:    rdb,
 	}
 
 	// TODO: Find a new home for static configuration (etcd?)
