@@ -8,7 +8,7 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-var Get *JavaService
+var Instance *JavaService
 
 type JavaService struct {
 	RDB           *redis.Client
@@ -16,7 +16,7 @@ type JavaService struct {
 }
 
 func Start(rdb *redis.Client) {
-	Get = &JavaService{
+	Instance = &JavaService{
 		RDB:    rdb,
 	}
 
@@ -27,9 +27,9 @@ func Start(rdb *redis.Client) {
 	}
 
 	// TODO: Find a new home for static configuration (etcd?)
-	Get.populateDummyData()
+	Instance.populateDummyData()
 
-	Get.NetworkServer, err = net.Bootstrap(rdb, config.Get.ListenAddress, config.Get.ListenPort, config.Get.OnlineMode)
+	Instance.NetworkServer, err = net.Bootstrap(rdb, config.Get.ListenAddress, config.Get.ListenPort, config.Get.OnlineMode)
 	if err != nil {
 		panic(err)
 	}
