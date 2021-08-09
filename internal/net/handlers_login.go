@@ -19,7 +19,12 @@ func (c *JavaClient) loginHandlers(pkt Packet) error {
 }
 
 func (c *JavaClient) handleLoginStartPacket(pkt packets.ServerboundLoginStartPacket) error {
-	cmd := c.server.RDB.Publish(context.Background(), "login.begin", &messages.LoginBegin{Username: pkt.Username})
+	msg := &messages.JavaLoginBegin{
+		Username: pkt.Username,
+		GameProtocolVersion: c.gameProtocolVersion,
+	}
+
+	cmd := c.server.RDB.Publish(context.Background(), "login.java.begin", msg)
 	if cmd.Err() != nil {
 		return cmd.Err()
 	}
