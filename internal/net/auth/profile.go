@@ -14,3 +14,20 @@ type ProfileProperty struct {
 	Signed    bool   `json:"-"`
 	Signature string `json:"signature"`
 }
+
+type TextureProperties struct {
+	Timestamp int64 `json:"timestamp"`
+	ProfileId string `json:"profileId"`
+	ProfileName string `json:"profileName"`
+	SignatureRequired bool `json:"signatureRequired"`
+	Textures Textures `json:"textures"`
+}
+
+type Textures struct {
+	Skin *Texture `json:"SKIN,omitempty"`
+	Cape *Texture `json:"CAPE,omitempty"`
+}
+
+type Texture struct {
+	Url string `json:"url"`
+}

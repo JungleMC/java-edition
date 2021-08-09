@@ -101,6 +101,7 @@ func (c *JavaClient) disconnect(reason string) {
 	} else if c.protocol == Play {
 		// TODO: Send play disconnect
 	}
+	delete(c.server.clients, c.networkId)
 	_ = c.connection.Close()
 }
 
