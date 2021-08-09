@@ -2,8 +2,12 @@ package net
 
 import (
 	"bytes"
+	"crypto/aes"
 	"crypto/cipher"
 	"github.com/JungleMC/java-edition/internal/config"
+	"github.com/JungleMC/java-edition/internal/net/auth"
+	"github.com/JungleMC/java-edition/internal/net/packets"
+	"github.com/google/uuid"
 	"io"
 	"log"
 	"net"
@@ -13,6 +17,7 @@ import (
 const MTU = 1500
 
 type JavaClient struct {
+	networkId           uuid.UUID
 	server              *JavaServer
 	connection          net.Conn
 	protocol            Protocol
@@ -23,6 +28,7 @@ type JavaClient struct {
 	sharedSecret        []byte
 	encryptStream       cipher.Stream
 	decryptStream       cipher.Stream
+	authProfile         *auth.Profile
 }
 
 func (c *JavaClient) listen() {
@@ -102,4 +108,34 @@ func (c *JavaClient) disconnectError(err error) {
 	// TODO: Better error kick handling
 	log.Println(err)
 	c.disconnect(err.Error())
+}
+
+func (c *JavaClient) enableCompression() error {
+	err := c.send(&packets.ClientboundLoginCompressionPacket{Threshold: int32(config.Get.CompressionThreshold)})
+	if err != nil {
+		return err
+	}
+	c.compressionEnabled = true
+	return nil
+}
+
+func (c *JavaClient) enableEncryption(sharedSecret []byte) (err error) {
+	block, err := aes.NewCipher(sharedSecret)
+	if err != nil {
+		return
+	}
+
+	c.sharedSecret = sharedSecret
+	c.encryptStream, err = auth.NewCFB8Encrypter(block, sharedSecret)
+	if err != nil {
+		return
+	}
+
+	c.decryptStream, err = auth.NewCFB8Decrypter(block, sharedSecret)
+	if err != nil {
+		return
+	}
+
+	c.encryptionEnabled = true
+	return
 }

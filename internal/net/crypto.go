@@ -7,16 +7,16 @@ import (
 )
 
 func (s *JavaServer) generateKeyPair() {
-	privKey, err := rsa.GenerateKey(rand.Reader, 1024)
+	privateKey, err := rsa.GenerateKey(rand.Reader, 1024)
 	if err != nil {
 		panic(err)
 	}
 
-	privKey.Precompute()
-	if err := privKey.Validate(); err != nil {
+	privateKey.Precompute()
+	if err = privateKey.Validate(); err != nil {
 		panic(err)
 	}
-	s.privateKey = privKey
-	s.privateKeyBytes = x509.MarshalPKCS1PrivateKey(privKey)
-	s.publicKeyBytes, _ = x509.MarshalPKIXPublicKey(privKey.Public())
+	s.privateKey = privateKey
+	s.privateKeyBytes = x509.MarshalPKCS1PrivateKey(privateKey)
+	s.publicKeyBytes, _ = x509.MarshalPKIXPublicKey(privateKey.Public())
 }

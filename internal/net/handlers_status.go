@@ -21,9 +21,9 @@ func (c *JavaClient) statusHandlers(pkt Packet) error {
 }
 
 func (c *JavaClient) handleStatusRequest() error {
-	description := c.server.RDB.Get(context.Background(), "config:description").Val()
-	favicon := c.server.RDB.Get(context.Background(), "config:favicon").Val()
-	maxPlayers, _ := c.server.RDB.Get(context.Background(), "config:max_players").Int()
+	description := c.server.rdb.Get(context.Background(), "config:description").Val()
+	favicon := c.server.rdb.Get(context.Background(), "config:favicon").Val()
+	maxPlayers, _ := c.server.rdb.Get(context.Background(), "config:max_players").Int()
 
 	status := packets.ServerListResponse{
 		Description: description,
