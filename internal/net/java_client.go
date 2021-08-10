@@ -101,6 +101,7 @@ func (c *JavaClient) disconnect(reason string) {
 	} else if c.protocol == Play {
 		// TODO: Send play disconnect
 	}
+	// TODO: Fix concurrent map writes (atomic or mutex this)
 	delete(c.server.clients, c.networkId)
 	_ = c.connection.Close()
 }
