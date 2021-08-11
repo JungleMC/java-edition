@@ -40,6 +40,10 @@ func (c *JavaClient) listen() {
 			return
 		}
 
+		if bytesRead == 0 { // EOF
+			continue
+		}
+
 		buf = buf[:bytesRead]
 		if c.encryptionEnabled {
 			c.decryptStream.XORKeyStream(buf, buf)
@@ -64,7 +68,15 @@ func (c *JavaClient) listen() {
 	}
 }
 
-func (c *JavaClient) send(pkt Packet) error {
+func (c *JavaClient) Send(pkt Packet) error {
+	if pkt == nil {
+		return nil
+	}
+
+	if config.Get.Verbose {
+		log.Printf("tx -> %v\n", reflect.ValueOf(pkt).Elem().Type().Name())
+	}
+
 	// TODO: Submit packets to a FIFO queue before sending directly, maintaining packet order
 	buf := &bytes.Buffer{}
 	writePacket(buf, reflect.ValueOf(pkt).Elem(), c.protocol, c.compressionEnabled, config.Get.CompressionThreshold)
@@ -82,6 +94,14 @@ func (c *JavaClient) send(pkt Packet) error {
 }
 
 func (c *JavaClient) handle(pkt Packet) error {
+	if pkt == nil {
+		return nil
+	}
+
+	if config.Get.Verbose {
+		log.Printf("rx <- %v\n", reflect.ValueOf(pkt).Type().Name())
+	}
+
 	switch c.protocol {
 	case Handshake:
 		return c.handshakeHandlers(pkt)
@@ -101,9 +121,10 @@ func (c *JavaClient) disconnect(reason string) {
 	} else if c.protocol == Play {
 		// TODO: Send play disconnect
 	}
-	// TODO: Fix concurrent map writes (atomic or mutex this)
-	delete(c.server.clients, c.networkId)
 	_ = c.connection.Close()
+
+	// TODO: Fix concurrent map writes (atomic or mutex this)
+	delete(c.server.Clients, c.networkId)
 }
 
 func (c *JavaClient) disconnectError(err error) {
@@ -113,7 +134,7 @@ func (c *JavaClient) disconnectError(err error) {
 }
 
 func (c *JavaClient) enableCompression() error {
-	err := c.send(&packets.ClientboundLoginCompressionPacket{Threshold: int32(config.Get.CompressionThreshold)})
+	err := c.Send(&packets.ClientboundLoginCompressionPacket{Threshold: int32(config.Get.CompressionThreshold)})
 	if err != nil {
 		return err
 	}

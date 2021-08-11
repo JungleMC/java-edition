@@ -12,12 +12,20 @@ import (
 )
 
 type JavaServer struct {
-	rdb        *redis.Client
+	RDB        *redis.Client
 	privateKey *rsa.PrivateKey
 	privateKeyBytes []byte
 	publicKeyBytes  []byte
 
-	clients map[uuid.UUID]*JavaClient
+	Clients map[uuid.UUID]*JavaClient
+}
+
+func (s *JavaServer) GetClient(networkId []byte) (*JavaClient, error) {
+	id, err := uuid.FromBytes(networkId)
+	if err != nil {
+		return nil, err
+	}
+	return s.Clients[id], nil
 }
 
 func (s *JavaServer) clientConnect(connection net.Conn) {
@@ -33,24 +41,19 @@ func (s *JavaServer) clientConnect(connection net.Conn) {
 	}
 	_, _ = rand.Read(client.verifyToken)
 
-	s.clients[networkId] = client
+	s.Clients[networkId] = client
 
 	client.listen()
 }
 
-func Bootstrap(rdb *redis.Client, address string, port int, onlineMode bool) (*JavaServer, error) {
-	s := &JavaServer{
-		rdb: rdb,
-		clients: make(map[uuid.UUID]*JavaClient),
-	}
-
+func (s *JavaServer) Bootstrap(rdb *redis.Client, address string, port int, onlineMode bool) error {
 	if onlineMode {
 		s.generateKeyPair()
 	}
 
 	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", address, port))
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer listener.Close()
 

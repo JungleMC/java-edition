@@ -21,9 +21,9 @@ func (c *JavaClient) statusHandlers(pkt Packet) error {
 }
 
 func (c *JavaClient) handleStatusRequest() error {
-	description := c.server.rdb.Get(context.Background(), "config:description").Val()
-	favicon := c.server.rdb.Get(context.Background(), "config:favicon").Val()
-	maxPlayers, _ := c.server.rdb.Get(context.Background(), "config:max_players").Int()
+	description := c.server.RDB.Get(context.Background(), "config:description").Val()
+	favicon := c.server.RDB.Get(context.Background(), "config:favicon").Val()
+	maxPlayers, _ := c.server.RDB.Get(context.Background(), "config:max_players").Int()
 
 	status := packets.ServerListResponse{
 		Description: description,
@@ -44,9 +44,9 @@ func (c *JavaClient) handleStatusRequest() error {
 		return err
 	}
 
-	return c.send(&packets.ClientboundStatusResponsePacket{Response: string(data)})
+	return c.Send(&packets.ClientboundStatusResponsePacket{Response: string(data)})
 }
 
 func (c *JavaClient) handleStatusPing() error {
-	return c.send(&packets.ClientboundStatusPongPacket{Time: time.Now().Unix()})
+	return c.Send(&packets.ClientboundStatusPongPacket{Time: time.Now().Unix()})
 }

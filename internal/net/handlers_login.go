@@ -30,7 +30,7 @@ func (c *JavaClient) handleLoginStartPacket(pkt packets.ServerboundLoginStartPac
 	c.authProfile.Name = pkt.Username
 
 	if config.Get.OnlineMode {
-		return c.send(&packets.ClientboundLoginEncryptionRequest{
+		return c.Send(&packets.ClientboundLoginEncryptionRequest{
 			ServerId:    "",
 			PublicKey:   c.server.publicKeyBytes,
 			VerifyToken: c.verifyToken,
@@ -81,7 +81,7 @@ func (c *JavaClient) handleLoginEncryptionResponse(pkt packets.ServerboundLoginE
 
 	msgBytes, _ := proto.Marshal(msg)
 
-	cmd := c.server.rdb.Publish(context.Background(), "event.login", msgBytes)
+	cmd := c.server.RDB.Publish(context.Background(), "event.login", msgBytes)
 	if cmd.Err() != nil {
 		return cmd.Err()
 	}

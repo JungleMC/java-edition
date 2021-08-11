@@ -7,6 +7,8 @@ import (
 	"github.com/JungleMC/java-edition/internal/net"
 	"github.com/caarlos0/env"
 	"github.com/go-redis/redis/v8"
+	"github.com/google/uuid"
+	"log"
 )
 
 var Instance *JavaService
@@ -23,6 +25,14 @@ func Start() {
 		panic(err)
 	}
 
+	if config.Get.DebugMode {
+		log.Print("Debug mode enabled")
+	}
+
+	if config.Get.Verbose {
+		log.Print("Verbose logging enabled")
+	}
+
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%v:%v", config.Get.RedisHost, config.Get.RedisPort),
 		Password: config.Get.RedisPassword,
@@ -32,12 +42,24 @@ func Start() {
 
 	Instance = &JavaService{
 		RDB:    rdb,
+		NetworkServer: &net.JavaServer{
+			RDB: rdb,
+			Clients: make(map[uuid.UUID]*net.JavaClient),
+		},
 	}
 
 	// TODO: Find a new home for static configuration (etcd?)
 	Instance.populateDummyData()
 
-	Instance.NetworkServer, err = net.Bootstrap(rdb, config.Get.ListenAddress, config.Get.ListenPort, config.Get.OnlineMode)
+	loginChannel := Instance.RDB.Subscribe(context.Background(), "event.login.response").Channel()
+	go func() {
+		err = Instance.listenLogin(loginChannel)
+		if err != nil {
+			log.Panicln(err)
+		}
+	}()
+
+	err = Instance.NetworkServer.Bootstrap(rdb, config.Get.ListenAddress, config.Get.ListenPort, config.Get.OnlineMode)
 	if err != nil {
 		panic(err)
 	}
