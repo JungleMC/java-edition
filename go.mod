@@ -4,11 +4,14 @@ go 1.16
 
 replace github.com/JungleMC/sdk => ../sdk
 
+replace github.com/JungleMC/protocol => ../protocol
+
 require (
+	github.com/JungleMC/protocol v0.0.0-20210814173752-8bcd840242d2 // indirect
 	github.com/JungleMC/sdk v0.0.0-20210810042112-e30cdbe2f38a
 	github.com/caarlos0/env v3.5.0+incompatible
 	github.com/go-redis/redis/v8 v8.11.2
-	github.com/google/uuid v1.1.2
+	github.com/google/uuid v1.3.0
 	github.com/stretchr/testify v1.7.0 // indirect
 	google.golang.org/protobuf v1.27.1
 )

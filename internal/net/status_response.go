@@ -1,4 +1,4 @@
-package packets
+package net
 
 import (
 	"github.com/google/uuid"
@@ -6,9 +6,9 @@ import (
 
 type ServerListResponse struct {
 	Description string            `json:"description,omitempty"` // chat message ptr
-	Players     ServerListPlayers `json:"players"`
-	Version     GameVersion       `json:"version"`
-	Favicon     string            `json:"favicon,omitempty"`
+	Players ServerListPlayers `json:"players"`
+	Version GameVersion       `json:"version"`
+	Favicon string            `json:"favicon,omitempty"`
 }
 
 type GameVersion struct {
@@ -18,7 +18,7 @@ type GameVersion struct {
 
 type ServerListPlayers struct {
 	Max    int             `json:"max"`
-	Online int             `json:"online"`
+	Online int                `json:"online"`
 	Sample []ServerListPlayer `json:"sample,omitempty"`
 }
 

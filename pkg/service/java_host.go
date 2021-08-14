@@ -41,9 +41,9 @@ func Start() {
 	defer rdb.Close()
 
 	Instance = &JavaService{
-		RDB:    rdb,
+		RDB: rdb,
 		NetworkServer: &net.JavaServer{
-			RDB: rdb,
+			RDB:     rdb,
 			Clients: make(map[uuid.UUID]*net.JavaClient),
 		},
 	}
@@ -59,7 +59,7 @@ func Start() {
 		}
 	}()
 
-	err = Instance.NetworkServer.Bootstrap(rdb, config.Get.ListenAddress, config.Get.ListenPort, config.Get.OnlineMode)
+	err = Instance.NetworkServer.Bootstrap(config.Get.ListenAddress, config.Get.ListenPort, config.Get.OnlineMode)
 	if err != nil {
 		panic(err)
 	}

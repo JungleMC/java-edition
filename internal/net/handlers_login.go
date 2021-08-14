@@ -7,7 +7,7 @@ import (
 	"errors"
 	"github.com/JungleMC/java-edition/internal/config"
 	"github.com/JungleMC/java-edition/internal/net/auth"
-	"github.com/JungleMC/java-edition/internal/net/packets"
+	. "github.com/JungleMC/protocol"
 	"github.com/JungleMC/sdk/pkg/events"
 	"github.com/JungleMC/sdk/pkg/messages"
 	"google.golang.org/protobuf/proto"
@@ -15,22 +15,23 @@ import (
 )
 
 func (c *JavaClient) loginHandlers(pkt Packet) error {
+	// TODO: de-reflect this cruft
 	t := ValueOf(pkt).Type()
 	switch t {
-	case TypeOf(packets.ServerboundLoginStartPacket{}):
-		return c.handleLoginStartPacket(pkt.(packets.ServerboundLoginStartPacket))
-	case TypeOf(packets.ServerboundLoginEncryptionResponsePacket{}):
-		return c.handleLoginEncryptionResponse(pkt.(packets.ServerboundLoginEncryptionResponsePacket))
+	case TypeOf(&LoginStart{}):
+		return c.handleLoginStartPacket(pkt.(*LoginStart))
+	case TypeOf(&EncryptionResponse{}):
+		return c.handleLoginEncryptionResponse(pkt.(*EncryptionResponse))
 	}
 
 	return errors.New("not implemented: " + t.Name())
 }
 
-func (c *JavaClient) handleLoginStartPacket(pkt packets.ServerboundLoginStartPacket) error {
+func (c *JavaClient) handleLoginStartPacket(pkt *LoginStart) error {
 	c.authProfile.Name = pkt.Username
 
 	if config.Get.OnlineMode {
-		return c.Send(&packets.ClientboundLoginEncryptionRequest{
+		return c.Send(&EncryptionRequest{
 			ServerId:    "",
 			PublicKey:   c.server.publicKeyBytes,
 			VerifyToken: c.verifyToken,
@@ -46,7 +47,7 @@ func (c *JavaClient) handleLoginStartPacket(pkt packets.ServerboundLoginStartPac
 	return nil
 }
 
-func (c *JavaClient) handleLoginEncryptionResponse(pkt packets.ServerboundLoginEncryptionResponsePacket) error {
+func (c *JavaClient) handleLoginEncryptionResponse(pkt *EncryptionResponse) error {
 	sharedSecret, err := auth.DecryptLoginResponse(c.server.privateKey, c.server.publicKeyBytes, c.verifyToken, pkt.VerifyToken, pkt.SharedSecret, c.authProfile)
 	if err != nil {
 		return err

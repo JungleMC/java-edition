@@ -2,7 +2,7 @@ package service
 
 import (
 	"fmt"
-	"github.com/JungleMC/java-edition/internal/net/packets"
+	"github.com/JungleMC/protocol"
 	"github.com/JungleMC/sdk/pkg/events"
 	"github.com/JungleMC/sdk/pkg/messages"
 	"github.com/go-redis/redis/v8"
@@ -32,8 +32,8 @@ func (s *JavaService) listenLogin(loginChannel <-chan *redis.Message) error {
 			return fmt.Errorf("failed to read profile ID: %w", err)
 		}
 
-		err = client.Send(&packets.ClientboundLoginSuccess{
-			Uuid:     profileId,
+		err = client.Send(&protocol.LoginSuccess{
+			UUID:     profileId,
 			Username: response.GetUsername(),
 		})
 		if err != nil {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/JungleMC/java-edition/internal/net/packets"
+	. "github.com/JungleMC/protocol"
 	. "reflect"
 	"time"
 )
@@ -12,9 +12,9 @@ import (
 func (c *JavaClient) statusHandlers(pkt Packet) error {
 	t := ValueOf(pkt).Type()
 	switch t {
-	case TypeOf(packets.ServerboundStatusRequestPacket{}):
+	case TypeOf(&StatusRequest{}):
 		return c.handleStatusRequest()
-	case TypeOf(packets.ServerboundStatusPingPacket{}):
+	case TypeOf(&StatusPing{}):
 		return c.handleStatusPing()
 	}
 	return errors.New("not implemented: " + t.Name())
@@ -25,16 +25,16 @@ func (c *JavaClient) handleStatusRequest() error {
 	favicon := c.server.RDB.Get(context.Background(), "config:favicon").Val()
 	maxPlayers, _ := c.server.RDB.Get(context.Background(), "config:max_players").Int()
 
-	status := packets.ServerListResponse{
+	status := ServerListResponse{
 		Description: description,
-		Players:     packets.ServerListPlayers{
+		Players:     ServerListPlayers{
 			Max:    maxPlayers,
 			Online: 0,
-			Sample: make([]packets.ServerListPlayer, 0),
+			Sample: make([]ServerListPlayer, 0),
 		},
-		Version: packets.GameVersion{
-			Name:     ProtocolVersionName,
-			Protocol: ProtocolVersionCode,
+		Version: GameVersion{
+			Name:     VersionDescription,
+			Protocol: Version,
 		},
 		Favicon: favicon,
 	}
@@ -44,9 +44,9 @@ func (c *JavaClient) handleStatusRequest() error {
 		return err
 	}
 
-	return c.Send(&packets.ClientboundStatusResponsePacket{Response: string(data)})
+	return c.Send(&StatusResponse{Response: string(data)})
 }
 
 func (c *JavaClient) handleStatusPing() error {
-	return c.Send(&packets.ClientboundStatusPongPacket{Time: time.Now().Unix()})
+	return c.Send(&StatusPong{Time: time.Now().Unix()})
 }

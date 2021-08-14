@@ -2,29 +2,29 @@ package net
 
 import (
 	"errors"
-	"github.com/JungleMC/java-edition/internal/net/packets"
+	. "github.com/JungleMC/protocol"
 	. "reflect"
 )
 
 func (c *JavaClient) handshakeHandlers(pkt Packet) error {
 	t := ValueOf(pkt).Type()
 	switch t {
-	case TypeOf(packets.ServerboundHandshakePacket{}):
-		return c.handleHandshakePacket(pkt.(packets.ServerboundHandshakePacket))
-	case TypeOf(packets.ServerboundHandshakeLegacyPingPacket{}):
-		return c.handleHandshakeLegacyPing(pkt.(packets.ServerboundHandshakeLegacyPingPacket))
+	case TypeOf(&HandshakePacket{}):
+		return c.handleHandshakePacket(pkt.(*HandshakePacket))
+	case TypeOf(&LegacyPingPacket{}):
+		return c.handleHandshakeLegacyPing(pkt.(*LegacyPingPacket))
 	}
 	return errors.New("not implemented: " + t.Name())
 }
 
-func (c *JavaClient) handleHandshakePacket(pkt packets.ServerboundHandshakePacket) error {
-	c.protocol = Protocol(pkt.NextState)
+func (c *JavaClient) handleHandshakePacket(pkt *HandshakePacket) error {
+	c.state = ConnectionState(pkt.NextState)
 	c.gameProtocolVersion = pkt.ProtocolVersion
 	return nil
 }
 
-func (c *JavaClient) handleHandshakeLegacyPing(pkt packets.ServerboundHandshakeLegacyPingPacket) error {
-	c.protocol = Status
+func (c *JavaClient) handleHandshakeLegacyPing(pkt *LegacyPingPacket) error {
+	c.state = Status
 	c.gameProtocolVersion = int32(pkt.ProtocolVersion)
 	return nil
 }

@@ -1,10 +1,13 @@
 package net
 
 import (
+	"bufio"
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/x509"
 	"fmt"
 	"github.com/JungleMC/java-edition/internal/net/auth"
+	. "github.com/JungleMC/protocol"
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
 	"log"
@@ -12,8 +15,8 @@ import (
 )
 
 type JavaServer struct {
-	RDB        *redis.Client
-	privateKey *rsa.PrivateKey
+	RDB             *redis.Client
+	privateKey      *rsa.PrivateKey
 	privateKeyBytes []byte
 	publicKeyBytes  []byte
 
@@ -28,25 +31,41 @@ func (s *JavaServer) GetClient(networkId []byte) (*JavaClient, error) {
 	return s.Clients[id], nil
 }
 
-func (s *JavaServer) clientConnect(connection net.Conn) {
+func (s *JavaServer) clientConnect(conn net.Conn) {
 	networkId, _ := uuid.NewRandom()
 
 	client := &JavaClient{
-		networkId:  networkId,
-		server:     s,
-		connection: connection,
-		protocol:   Handshake,
+		networkId:   networkId,
+		server:      s,
+		conn:        conn,
+		reader:      bufio.NewReader(conn),
+		writer:      bufio.NewWriter(conn),
+		state:       Handshake,
 		authProfile: &auth.Profile{},
 		verifyToken: make([]byte, 4),
 	}
 	_, _ = rand.Read(client.verifyToken)
 
 	s.Clients[networkId] = client
-
 	client.listen()
 }
 
-func (s *JavaServer) Bootstrap(rdb *redis.Client, address string, port int, onlineMode bool) error {
+func (s *JavaServer) generateKeyPair() {
+	privateKey, err := rsa.GenerateKey(rand.Reader, 1024)
+	if err != nil {
+		panic(err)
+	}
+
+	privateKey.Precompute()
+	if err = privateKey.Validate(); err != nil {
+		panic(err)
+	}
+	s.privateKey = privateKey
+	s.privateKeyBytes = x509.MarshalPKCS1PrivateKey(privateKey)
+	s.publicKeyBytes, _ = x509.MarshalPKIXPublicKey(privateKey.Public())
+}
+
+func (s *JavaServer) Bootstrap(address string, port int, onlineMode bool) error {
 	if onlineMode {
 		s.generateKeyPair()
 	}
@@ -58,14 +77,12 @@ func (s *JavaServer) Bootstrap(rdb *redis.Client, address string, port int, onli
 	defer listener.Close()
 
 	for {
-		connection, clientErr := listener.Accept()
-
+		conn, clientErr := listener.Accept()
 		if clientErr != nil {
 			log.Println(err)
-			connection.Close()
+			conn.Close()
 			continue
 		}
-
-		go s.clientConnect(connection)
+		go s.clientConnect(conn)
 	}
 }
