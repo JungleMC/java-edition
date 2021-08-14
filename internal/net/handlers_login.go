@@ -43,6 +43,23 @@ func (c *JavaClient) handleLoginStartPacket(pkt *LoginStart) error {
 				return err
 			}
 		}
+
+		networkIdBytes, _ := c.networkId.MarshalBinary()
+		profileIdBytes, _ := c.authProfile.ID.MarshalBinary()
+
+		msg := &events.PlayerLoginEvent{
+			ClientType: messages.ClientType_JAVA_EDITION,
+			NetworkId:  networkIdBytes,
+			ProfileId:  profileIdBytes,
+			Username:   c.authProfile.Name,
+		}
+
+		msgBytes, _ := proto.Marshal(msg)
+
+		cmd := c.server.RDB.Publish(context.Background(), "event.login", msgBytes)
+		if cmd.Err() != nil {
+			return cmd.Err()
+		}
 	}
 	return nil
 }

@@ -31,13 +31,13 @@ func (s *JavaService) listenLogin(loginChannel <-chan *redis.Message) error {
 		if err != nil {
 			return fmt.Errorf("failed to read profile ID: %w", err)
 		}
-
 		err = client.Send(&protocol.LoginSuccess{
 			UUID:     profileId,
 			Username: response.GetUsername(),
 		})
-		if err != nil {
 
+		if err != nil {
+			panic(err)
 		}
 	}
 	return nil

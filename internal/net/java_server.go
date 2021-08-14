@@ -35,13 +35,15 @@ func (s *JavaServer) clientConnect(conn net.Conn) {
 	networkId, _ := uuid.NewRandom()
 
 	client := &JavaClient{
-		networkId:   networkId,
-		server:      s,
-		conn:        conn,
-		reader:      bufio.NewReader(conn),
-		writer:      bufio.NewWriter(conn),
-		state:       Handshake,
-		authProfile: &auth.Profile{},
+		networkId: networkId,
+		server:    s,
+		conn:      conn,
+		reader:    bufio.NewReader(conn),
+		writer:    bufio.NewWriter(conn),
+		state:     Handshake,
+		authProfile: &auth.Profile{
+			ID: uuid.New(), // Offline mode. Online mode overrides this
+		},
 		verifyToken: make([]byte, 4),
 	}
 	_, _ = rand.Read(client.verifyToken)
