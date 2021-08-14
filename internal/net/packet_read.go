@@ -11,7 +11,7 @@ import (
 
 type Packet interface{}
 
-func readPacket(buf *bytes.Buffer, proto Protocol, compressed bool) (Packet, error) {
+func ReadPacket(buf *bytes.Buffer, proto Protocol, compressed bool) (Packet, error) {
 	payloadCheck, err := buf.ReadByte()
 	if payloadCheck == 0xFE {
 		return readLegacyPing(buf), nil

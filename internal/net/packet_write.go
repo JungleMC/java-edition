@@ -7,7 +7,7 @@ import (
 	"reflect"
 )
 
-func writePacket(buf *bytes.Buffer, v reflect.Value, proto Protocol, compressed bool, compressionThreshold int) {
+func WritePacket(buf *bytes.Buffer, v reflect.Value, proto Protocol, compressed bool, compressionThreshold int) {
 	if v.Kind() == reflect.Interface {
 		v = reflect.ValueOf(v.Interface())
 	}

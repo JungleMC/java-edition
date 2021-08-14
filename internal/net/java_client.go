@@ -50,7 +50,7 @@ func (c *JavaClient) listen() {
 		}
 
 		reader := bytes.NewBuffer(buf)
-		pkt, err := readPacket(reader, c.protocol, c.compressionEnabled)
+		pkt, err := ReadPacket(reader, c.protocol, c.compressionEnabled)
 		if err != nil && err != io.EOF {
 			c.disconnectError(err)
 			return
@@ -79,7 +79,7 @@ func (c *JavaClient) Send(pkt Packet) error {
 
 	// TODO: Submit packets to a FIFO queue before sending directly, maintaining packet order
 	buf := &bytes.Buffer{}
-	writePacket(buf, reflect.ValueOf(pkt).Elem(), c.protocol, c.compressionEnabled, config.Get.CompressionThreshold)
+	WritePacket(buf, reflect.ValueOf(pkt).Elem(), c.protocol, c.compressionEnabled, config.Get.CompressionThreshold)
 
 	data := buf.Bytes()
 	if config.Get.OnlineMode && c.encryptionEnabled {
